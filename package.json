@@ -1,0 +1,24 @@
+{
+  "name": "events-pi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZanoTN/EventsPi.git"
+  },
+  "author": "Zano_TN",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZanoTN/EventsPi/issues"
+  },
+  "homepage": "https://github.com/ZanoTN/EventsPi#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "googleapis": "^124.0.0",
+    "node-telegram-bot-api": "^0.61.0"
+  }
+}
