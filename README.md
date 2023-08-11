@@ -16,7 +16,7 @@ EventsPi is a script that allows you to send google calendar event reminders on 
 version: '3'
 services:
   bot:
-    image: events-pi:latest
+    image: ghcr.io/ZanoTN/events-pi:latest
     restart: unless-stopped
     environment:
       # Telegram configs:
