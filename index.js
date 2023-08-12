@@ -11,7 +11,7 @@ init()
 
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {polling: true});
 const chat_id_reminders = process.env.TELEGRAM_CHAT_ID
-const BOT_WEEKLY_REMINDER = (typeof process.env.BOT_WEEKLY_REMINDER === "string" && process.env.BOT_WEEKLY_REMINDER.toLowerCase() === "true");
+const BOT_WEEKLY_REMINDER = (typeof process.env.BOT_WEEKLY_REMINDER === "string" && process.env.BOT_WEEKLY_REMINDER.toLowerCase() === "yes");
 
 console.log("Start loop...")
 loop();
@@ -39,6 +39,7 @@ function UpdateFromGoogleCalendar() {
 			resolve(data);
 			console.timeEnd("-> Update from Google Calendar");
 			console.log(`-> Events find: ${data.length}`)
+			console.log(data)
 		})
 	})
 }
@@ -213,7 +214,12 @@ function descriptionToString(event) {
 	return `\n${event.description}\n`;
 }
 
+
 async function init() {
+	checkEnvVariable()
+}
+
+function checkEnvVariable() {
 	let errors_list = []
 	let warnings_list = []
 
@@ -242,7 +248,7 @@ async function init() {
 	if(!process.env.BOT_REMINDER_TIME) {
 		errors_list.push("BOT_REMINDER_TIME: unset")
 	}
-	if(process.env.BOT_REMINDER_TIME !== "google_calendar" && process.env.BOT_REMINDER_TIME !== "custom") {
+	if(!(["1hr", "6hr", "18", "08-18"].includes(process.env.BOT_REMINDER_TIME))) {
 		errors_list.push("BOT_REMINDER_TIME: unvalid")
 	}
 	if(!process.env.BOT_WEEKLY_REMINDER) {
@@ -253,15 +259,16 @@ async function init() {
 	}
 
 
-	console.log(`Errors [${errors_list.length}]:`)
 	errors_list.forEach(item => {
-		console.log(`- ${item}`)
+		console.log(`Error: ${item}`)
 	})
-	console.log(`Warnings [${warnings_list.length}]:`)
 	warnings_list.forEach(item => {
-		console.log(`- ${item}`)
+		console.log(`Warning: ${item}`)
 	})
 
+	if(errors_list.length != 0) {
+		process.exit()
+	}
 }
 
 async function loop() {
@@ -278,7 +285,7 @@ async function loop() {
 
 		if(now.getMinutes() != lastMinutes) {
 
-			// Download google calendare
+			// Download google calendar
 			if(now.getMinutes() % 30 === 0 && now.getSeconds() === 0) {
 				UpdateFromGoogleCalendar()
 				.then((data) => {
