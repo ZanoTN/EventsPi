@@ -1,17 +1,17 @@
-name: Docker Images for GHCR
+# name: Docker Images for GHCR
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  build_and_publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build and push image
-        run: |
-          docker login --username ZanoTN --password ${{ secrets.GH_PAT }} ghcr.io
-          docker build . --tag ghcr.io/zanotn/events-pi:latest
-          docker push ghcr.io/zanotn/events-pi:latest
+# jobs:
+#   build_and_publish:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Build and push image
+#         run: |
+#           docker login --username ZanoTN --password ${{ secrets.GH_PAT }} ghcr.io
+#           docker build . --tag ghcr.io/zanotn/events-pi:latest
+#           docker push ghcr.io/zanotn/events-pi:latest
