@@ -38,6 +38,7 @@ function UpdateFromGoogleCalendar() {
 		promise.then((data) => {
 			resolve(data);
 			console.timeEnd("-> Update from Google Calendar");
+			console.log(`-> Events find: ${data.length}`)
 		})
 	})
 }
