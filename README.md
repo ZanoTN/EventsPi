@@ -49,6 +49,10 @@ services:
 ```
 2. Run in same directory of docker-compose.yml: ```docker compose up -d``` or ```docker-compose up -d```
 
+#### Update (manual)
+1. Update local image: ```docker-compose pull```
+2. Reload container: ```docker-compose up -d```
+
 ### Manual
 Not recommended for production, use only for test or developing.
 1. Clone the repository: ```git clone https://github.com/ZanoTN/EventsPi.git```
