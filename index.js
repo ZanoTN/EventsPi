@@ -254,7 +254,7 @@ function checkEnvVariable() {
 	if(!process.env.BOT_WEEKLY_REMINDER) {
 		errors_list.push("BOT_WEEKLY_REMINDER: unset")
 	}
-	if(process.env.BOT_WEEKLY_REMINDER !== "false" && process.env.BOT_WEEKLY_REMINDER !== "true") {
+	if(process.env.BOT_WEEKLY_REMINDER !== "yes" && process.env.BOT_WEEKLY_REMINDER !== "no") {
 		errors_list.push("BOT_REMINDER_TIME: not boolean")
 	}
 
