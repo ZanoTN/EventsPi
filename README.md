@@ -46,6 +46,8 @@ services:
       BOT_REMINDER_TIME: "1hr|6hr|18|08-18"
       # Send an extra message at 14:00 of sunday with all events of the next week (yes|no)
       BOT_WEEKLY_REMINDER: yes
+      # Set local time zone, See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+      TZ:
 ```
 2. Run in same directory of docker-compose.yml: ```docker compose up -d``` or ```docker-compose up -d```
 
