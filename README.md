@@ -1,4 +1,12 @@
 # EventsPi
+
+![GitHub](https://img.shields.io/github/license/ZanoTN/EventsPi?style=flat-square&color=5ba839)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/ZanoTN/EventsPi/publish-ghcr.yaml?style=flat-square&color=5ba839)
+
+
+
+
+
 EventsPi is a script that allows you to send google calendar event reminders on a telegram chat.
 
 ## ToDo
