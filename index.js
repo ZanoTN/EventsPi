@@ -1,7 +1,9 @@
 process.env.NTBA_FIX_319 = 1;
 process.env.NTBA_FIX_350 = 1;
 
-require('dotenv').config()
+if(process.env.NODE_ENV !== "production") {
+	require('dotenv').config()
+}
 
 const TelegramBot = require('node-telegram-bot-api');
 const GoogleCalendarApi = require('./app/googleCalendarDownload');

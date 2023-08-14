@@ -1,6 +1,4 @@
-//const { token } = require('./config');
 const { google } = require('googleapis');
-require('dotenv').config()
 
 const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 const GOOGLE_PRIVATE_KEY= process.env.GOOGLE_PRIVATE_KEY
