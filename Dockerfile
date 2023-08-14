@@ -1,4 +1,4 @@
-FROM node:alpine AS BUILD
+FROM node:18-alpine AS BUILD
 ENV NODE_ENV=production
 WORKDIR /app
 
@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apk update && apk add yarn curl bash python3 g++ make && rm -rf /var/cache/apk/*
 
 # install node-prune (https://github.com/tj/node-prune)
-RUN curl -sf https://gobinaries.com/tj/node-prune | sh
+# RUN curl -sf https://gobinaries.com/tj/node-prune | sh
 
 COPY package.json yarn.lock ./
 
@@ -25,7 +25,7 @@ COPY . .
 RUN npm prune --production
 
 # run node prune
-RUN /usr/local/bin/node-prune
+#RUN /usr/local/bin/node-prune
 
 # remove unused dependencies
 # RUN rm -rf node_modules/rxjs/src/[name]
@@ -40,7 +40,5 @@ WORKDIR /app
 COPY  --from=BUILD /app/node_modules/ ./node_modules/
 COPY  --from=BUILD /app/index.js ./
 COPY  --from=BUILD /app/app/ ./app/
-
-RUN ls
 
 CMD [ "node", "index.js" ]
