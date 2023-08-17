@@ -111,7 +111,7 @@ function getAlertDate8or18DayBefore(start_date_event) {
 	const startDateEvent = new Date(start_date_event);
 	const alertDate = new Date(start_date_event);
 
-	if(startDateEvent.getHours()*60 + startDateEvent.getMinutes() <= 18*60) {
+	if(startDateEvent.getHours()*60 + startDateEvent.getMinutes() < 18*60) {
 		isBefore18 = true;
 	}
 

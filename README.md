@@ -40,7 +40,7 @@ services:
 
       # Google caledar configs:
       # See for more info: https://support.google.com/a/answer/7378726?hl=en
-      GOOGLE_PRIVATE_KEY:         # "-----BEGIN PRIVATE KEY-----\n ... \n-----END PRIVATE KEY-----\n"
+      GOOGLE_PRIVATE_KEY: # "-----BEGIN PRIVATE KEY-----\n ... \n-----END PRIVATE KEY-----\n"
       GOOGLE_CLIENT_EMAIL:        
       GOOGLE_PROJECT_NUMBER:
       # Calendar id (if is the default put the email of account)      
