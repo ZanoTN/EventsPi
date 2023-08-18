@@ -63,6 +63,16 @@ services:
 1. Update local image: ```docker-compose pull```
 2. Reload container: ```docker-compose up -d```
 
+
+### PM2
+Official site: [pm2.keymetrics.io](https://pm2.keymetrics.io/)
+1. Clone the repository: ```git clone https://github.com/ZanoTN/EventsPi.git```
+2. Enter in folder: ```cd EventsPi```
+3. Install pm2: ```npm install pm2 -g``` or ```yarn global add pm2```
+4. Install node module: ```yarn install```
+5. Complete ".env" file from ".env.example"
+6. Start pm2: ```pm2 start index.js --name "EventsPi"```
+
 ### Manual
 Not recommended for production, use only for test or developing.
 1. Clone the repository: ```git clone https://github.com/ZanoTN/EventsPi.git```
