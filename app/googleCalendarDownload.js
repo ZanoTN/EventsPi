@@ -1,4 +1,8 @@
+"use strict"
+
 const { google } = require('googleapis');
+var Event = require("./event");
+const { sendLog, TypeLogs } = require('./logs');
 
 const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 const GOOGLE_PRIVATE_KEY= process.env.GOOGLE_PRIVATE_KEY
@@ -35,108 +39,43 @@ async function listEvents() {
 
 	const events = res.data.items;
 	if (!events || events.length === 0) {
-		console.log('No upcoming events found.');
 		return [];
 	}
 
 	let array = [];
 	events.map((event, i) => {
-
 		if(event.start.dateTime === undefined) {
+			sendLog(`Google api: skippend event with no start time (title: ${event.summary})`, TypeLogs.WARNING)
 			return;
 		}
 
-		if(event.description) {
-			event.description = event.description.replaceAll("<span>", "")
-			event.description = event.description.replaceAll("</span>", "")
-			event.description = event.description.replaceAll("<br>", "\n")
-		} 
-
-		array.push({
-			id: event.id,
-			start: new Date(event.start.dateTime),
-			end: new Date(event.end.dateTime),
-			summary: event.summary,
-			description: event.description,
-			location: event.location,
-			allertDate: getAlertDate(event.start.dateTime)
-		})
+		const event_obj = new Event(
+			event.organizer.email,
+			event.id,
+			event.summary,
+			event.description,
+			event.location,
+			event.start.dateTime,
+			event.end.dateTime,
+			event.htmlLink
+		);		
+		
+		array.push(event_obj)
 	});
 
 	return array;
 }
 
-function getAlertDate(start_date_event) {
-	const eventStartDate = new Date(start_date_event)
-	let alertDate
-
-	switch (BOT_REMINDER_TIME) {
-		case 0:
-			alertDate = getAlertDateOneHoursBefore(eventStartDate)
-			break;
-		case 1:
-			alertDate = getAlertDateSixHoursBefore(eventStartDate)
-			break;
-		case 2:
-			alertDate = getAlertDate18DayBefore(eventStartDate)
-			break;
-		case 3:
-			alertDate = getAlertDate8or18DayBefore(eventStartDate)
-			break;		
-	}
-
-	return alertDate
-}
-
-function getAlertDateOneHoursBefore(startDate) {
-	return new Date(startDate.getTime() - 60*60*1000)
-}
-
-function getAlertDateSixHoursBefore(startDate) {
-	return new Date(startDate.getTime() - 6*60*60*1000)
-}
-
-function getAlertDate18DayBefore(startDate) {
-	const alertDate = startDate
-	alertDate.setDate(startDate.getDate() - 1)
-	alertDate.setHours(18);
-	alertDate.setMinutes(0);
-	alertDate.setSeconds(0);
-	alertDate.setMilliseconds(0);
-	return alertDate
-}
-
-function getAlertDate8or18DayBefore(start_date_event) {
-	let isBefore18 = false;
-	const startDateEvent = new Date(start_date_event);
-	const alertDate = new Date(start_date_event);
-
-	if(startDateEvent.getHours()*60 + startDateEvent.getMinutes() < 18*60) {
-		isBefore18 = true;
-	}
-
-	if(isBefore18) {
-		// Day before at 18:00
-		alertDate.setDate(startDateEvent.getDate() - 1)
-		alertDate.setHours(18);
-	} else {
-		// Same day at 08:00
-		alertDate.setHours(8);
-	}
-
-	alertDate.setMinutes(0);
-	alertDate.setSeconds(0);
-	alertDate.setMilliseconds(0);
-
-	return alertDate
-}
-
-
 async function getEvents() {
 	return new Promise((resolve, rejects) => {
 		listEvents()
-		.then((res) => resolve(res))
-		.catch(console.error);
+		.then((res) => {
+			resolve(res)
+			sendLog(`Google api: added ${res.length} events`, TypeLogs.INFO)
+		})
+		.catch((error) => {
+			sendLog(`Google api: unable to fetch data (status code: ${error.status})`, TypeLogs.ERROR)
+		});
 	})
 }
 
