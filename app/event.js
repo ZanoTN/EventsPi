@@ -109,7 +109,7 @@ module.exports = class Event{
 			"📍 "+ this.#toStringLocation() +
 			"---\n" +
 			this.#toStringDescription() +
-			"---"
+			"---\n"
 		)
 	}
 
@@ -193,7 +193,7 @@ module.exports = class Event{
 		if(this.location === undefined || this.location === "") {
 			return "-\n";
 		}
-		
+
 	
 		let toReturn = ""
 		const location_split = this.location.split(", ");
@@ -207,11 +207,7 @@ module.exports = class Event{
 	}
 
 	#toStringDescription() {
-		if(this.description === undefined) {
-			return "";
-		}
-	
-		if(this.description === "") {
+		if(this.description === undefined || this.description === "") {
 			return "";
 		} 
 	
@@ -219,15 +215,22 @@ module.exports = class Event{
 	}
 
 	/**
+	 * 	
+	 * @param {Date} range_start 
+	 * @param {number} minutes_delta 
+	 */
+	insideRangeNotificationTime(range_start, minutes_delta) {
+		return (this.notification_time.getTime() >= range_start.getTime() && this.start_time.getTime() < (range_start.getTime() + minutes_delta*60*1000))
+	}
+
+	/**
 	 * 
 	 * @param {Date} range_start 
 	 * @param {number} minutes_delta 
 	 */
-	insideRange(range_start, minutes_delta) {
-		return this.notification_time.getTime() >= range_start.getTime() && 
-			this.notification_time.getTime() < (new Date()).getTime() + minutes_delta*60*1000
+	insideRangeStartTime(range_start, minutes_delta) {
+		return (this.start_time.getTime() >= range_start.getTime() && this.start_time.getTime() < (range_start.getTime() + minutes_delta*60*1000))
 	}
-
 	/**
 	 * 
 	 * @param {Event[]} events 

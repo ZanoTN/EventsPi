@@ -39,28 +39,21 @@ async function checkEventForTelegram() {
 	for(let i=0;i<events.length;i++) {
 		const event = events[i];
 
-		if(event.insideRange(rangeStart, 1)) {
+		if(event.insideRangeNotificationTime(rangeStart, 1)) {
 			await TelegramBot.sendEventTelegram(CHAT_ID_FOR_REMINDERS, event);
 		}
 	}
 }
 
 function sendendReminderForAllWeek() {
-	const now = new Date();
 	const week_start_date = new Date();
-	const week_end_date = new Date();
-
-	week_start_date.setDate(now.getDate() + 1);
-	week_end_date.setDate(now.getDate() + 8);
+	week_start_date.setDate(new Date().getDate() + 1);
 	resetDayAtStart(week_start_date);
-	resetDayAtStart(week_end_date);
 
 	let eventsInNextWeek = [];
-	
+
 	events.map((event, i) => {
-		if(week_start_date.getTime() <= event.start_time.getTime() && 
-			event.start_time.getTime() < week_end_date.getTime()
-		) {
+		if(event.insideRangeStartTime(week_start_date, 10080)) { // 7*24*60
 			eventsInNextWeek.push(event);
 		}
 	});
@@ -156,8 +149,8 @@ async function loop() {
 
 			// See if is sunday at 14:00
 			if(BOT_WEEKLY_REMINDER) {
-				if(now.getDay() === 0 && now.getHours() === 14 && now.getMinutes() === 0) {
-					sendendReminderForAllWeek()
+				if(now.getDay() === 0 && now.getHours() === 18 && now.getMinutes() === 30) {
+				 	sendendReminderForAllWeek()
 				}
 			}
 

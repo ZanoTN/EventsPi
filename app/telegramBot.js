@@ -48,10 +48,10 @@ async function sendEventTelegram(chat_id, event) {
  * @returns 
  */
 async function sendGroupEventsTelegram(chat_id, events) {
-	let messageText = "📆 <b>EVENTS THIS WEEK</b>\n\n➖➖➖➖➖➖➖➖➖➖\n"
+	let messageText = "📆 <b>EVENTS THIS WEEK</b>\n\n\n"
 	
 	events.forEach(event => {
-		messageText+=event.telegramFormatNoDescriptionButWithLink() + "\n";
+		messageText+=event.telegramFormat() + "\n";
 	});
 
 	return new Promise(async (resolve, reject) => {
