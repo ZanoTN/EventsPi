@@ -149,7 +149,7 @@ async function loop() {
 
 			// See if is sunday at 14:00
 			if(BOT_WEEKLY_REMINDER) {
-				if(now.getDay() === 0 && now.getHours() === 18 && now.getMinutes() === 30) {
+				if(now.getDay() === 0 && now.getHours() === 14 && now.getMinutes() === 0) {
 				 	sendendReminderForAllWeek()
 				}
 			}
