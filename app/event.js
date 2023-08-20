@@ -113,6 +113,18 @@ module.exports = class Event{
 		)
 	}
 
+	/**
+	 * 
+	 * @param {Event[]} events 
+	 */
+	static telegramFormatMultiEvents(events) {
+		let textToReturn = "";
+
+		events.map((event) => {
+			textToReturn += event.telegramFormat() + '\n';
+		})
+	}
+
 	telegramFormatNoDescription() {
 		return(
 			"📢 "+ this.#toStringTitle() +
@@ -157,7 +169,7 @@ module.exports = class Event{
 			end_date_str = start_date_str;
 		}
 	
-	
+
 		// Time
 		const start_time_str = (start_date_time.getHours()<10?'0':'') + start_date_time.getHours()+":"+
 			(start_date_time.getMinutes()<10?'0':'') + start_date_time.getMinutes();
@@ -178,13 +190,10 @@ module.exports = class Event{
 	}
 
 	#toStringLocation() {
-		if(this.location === undefined) {
-			return "-\n";
-		} 
-	
-		if(this.location === "") {
+		if(this.location === undefined || this.location === "") {
 			return "-\n";
 		}
+		
 	
 		let toReturn = ""
 		const location_split = this.location.split(", ");
@@ -209,7 +218,35 @@ module.exports = class Event{
 		return `${this.description}\n`;
 	}
 
-	insideInARange(range_start, range_stop) {
-		return
+	/**
+	 * 
+	 * @param {Date} range_start 
+	 * @param {number} minutes_delta 
+	 */
+	insideRange(range_start, minutes_delta) {
+		return this.notification_time.getTime() >= range_start.getTime() && 
+			this.notification_time.getTime() < (new Date()).getTime() + minutes_delta*60*1000
+	}
+
+	/**
+	 * 
+	 * @param {Event[]} events 
+	 */
+	static groupForSameCalendarID(events) {
+		let obj = {};
+
+		events.sort((a, b) => {
+			return a.notification_time.getTime() - b.notification_time.getTime();
+		})
+
+		events.map((event, index) => {
+			if(!obj[event.calendar_id]) {
+				obj[event.calendar_id] = [];
+			}
+			
+			obj[event.calendar_id].push(event);
+		})
+
+		return obj;
 	}
 }

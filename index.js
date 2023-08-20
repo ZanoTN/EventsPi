@@ -9,31 +9,16 @@ process.env.NTBA_FIX_350 = 1;
 if(process.env.NODE_ENV !== "production") {
 	require('dotenv').config()
 }
+checkEnvVariable()
 
-const TelegramBot = require('node-telegram-bot-api');
 const GoogleCalendarApi = require('./app/googleCalendarDownload');
+const Event = require("./app/event");
+const TelegramBot = require("./app/telegramBot");
 
-init()
-
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {polling: true});
-const chat_id_reminders = process.env.TELEGRAM_CHAT_ID;
-let events = [];
+const CHAT_ID_FOR_REMINDERS = process.env.TELEGRAM_CHAT_ID;
 const BOT_WEEKLY_REMINDER = (typeof process.env.BOT_WEEKLY_REMINDER === "string" && process.env.BOT_WEEKLY_REMINDER.toLowerCase() === "yes");
+let events = [];
 
-loop();
-
-bot.on('message', async (msg) => {
-	const text = msg.text;
-	
-	switch (text) {
-		case "/id":
-			sendLog(`Tselegram "/id" command in chat ${msg.chat.id}`);
-			bot.sendMessage(msg.chat.id, msg.chat.id);
-			break;
-		default:
-			break;
-	}
-});
 
 function UpdateFromGoogleCalendar() {
 	sendLog("Start update from google calendar", TypeLogs.INFO);
@@ -47,40 +32,17 @@ function UpdateFromGoogleCalendar() {
 
 
 async function checkEventForTelegram() {
-	const now = new Date();
-	now.setSeconds(0);
-	now.setMilliseconds(0);
-	const rangeStart = now.getTime();
-	
-	now.setSeconds(59);
-	now.setMilliseconds(999);
-	const rangeStop = now.getTime();
-	
+	const rangeStart = new Date();
+	rangeStart.setSeconds(0);
+	rangeStart.setMilliseconds(0);
 
 	for(let i=0;i<events.length;i++) {
 		const event = events[i];
 
-		if(event.notification_time.getTime()>=rangeStart && 
-			event.notification_time.getTime()<=rangeStop
-		) {
-			await sendEventReminderMessageTelegram(event);
+		if(event.insideRange(rangeStart, 1)) {
+			await TelegramBot.sendEventTelegram(CHAT_ID_FOR_REMINDERS, event);
 		}
 	}
-}
-
-function sendEventReminderMessageTelegram(event) {
-	return new Promise(async (resolve, reject) => {
-		const opts = {parse_mode : "HTML","disable_web_page_preview": 1}
-		bot.sendMessage(chat_id_reminders, event.telegramFormat(), opts)
-		.then((data) => {
-			sendLog(`Sended event reminder (chat id: ${chat_id_reminders}, event title: ${event.title})`, TypeLogs.INFO)
-			resolve(data);
-		})
-		.catch((error) => {
-			sendLog("Error on send message telegram", TypeLogs.ERROR)
-			console.log(error)
-		})
-	})
 }
 
 function sendendReminderForAllWeek() {
@@ -102,28 +64,10 @@ function sendendReminderForAllWeek() {
 			eventsInNextWeek.push(event);
 		}
 	});
-	
-	if(eventsInNextWeek.length != 0) {
-		const opts = {parse_mode : "HTML","disable_web_page_preview": 1}
-		bot.sendMessage(chat_id_reminders, textAllWeekReminder(eventsInNextWeek), opts)
-		.then((data) => {
-			sendLog(`Sended events reminder for the week (chat id: ${chat_id_reminders}, event title: ${event.title})`, TypeLogs.INFO)
-		})
-		.catch((error) => {
-			sendLog("Error on send message telegram", TypeLogs.ERROR)
-			console.log(error)
-		})		
+
+	if(eventsInNextWeek.length !== 0) {
+		TelegramBot.sendGroupEventsTelegram(CHAT_ID_FOR_REMINDERS, eventsInNextWeek);
 	}
-}
-
-function textAllWeekReminder(eventsInNextWeek) {
-	let toReturn = "📆  <b>EVENTS THIS WEEK</b>\n\n➖➖➖➖➖➖➖➖➖➖\n"
-	
-	eventsInNextWeek.forEach(event => {
-		toReturn+=event.telegramFormatNoDescriptionButWithLink() + "\n";
-	});
-
-	return toReturn;
 }
 
 
@@ -132,10 +76,6 @@ function resetDayAtStart(date) {
 	date.setMinutes(0)
 	date.setSeconds(0)
 	date.setMilliseconds(0)
-}
-
-async function init() {
-	checkEnvVariable()
 }
 
 function checkEnvVariable() {
@@ -229,3 +169,4 @@ async function loop() {
 	}, 1000)
 }
 
+loop();

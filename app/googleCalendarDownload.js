@@ -1,7 +1,7 @@
 "use strict"
 
 const { google } = require('googleapis');
-var Event = require("./event");
+const Event = require("./event");
 const { sendLog, TypeLogs } = require('./logs');
 
 const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
@@ -71,7 +71,7 @@ async function getEvents() {
 		listEvents()
 		.then((res) => {
 			resolve(res)
-			sendLog(`Google api: added ${res.length} events`, TypeLogs.INFO)
+			sendLog(`Google api: find ${res.length} events`, TypeLogs.INFO)
 		})
 		.catch((error) => {
 			sendLog(`Google api: unable to fetch data (status code: ${error.status})`, TypeLogs.ERROR)
