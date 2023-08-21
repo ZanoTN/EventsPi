@@ -1,130 +1,66 @@
+"use strict"
+
+const { TypeLogs, sendLog } = require("./app/logs")
+sendLog("Start app", TypeLogs.INFO);
+
 process.env.NTBA_FIX_319 = 1;
 process.env.NTBA_FIX_350 = 1;
 
 if(process.env.NODE_ENV !== "production") {
 	require('dotenv').config()
 }
+checkEnvVariable()
 
-const TelegramBot = require('node-telegram-bot-api');
 const GoogleCalendarApi = require('./app/googleCalendarDownload');
+const Event = require("./app/event");
+const TelegramBot = require("./app/telegramBot");
 
-
-init()
-
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {polling: true});
-const chat_id_reminders = process.env.TELEGRAM_CHAT_ID
+const CHAT_ID_FOR_REMINDERS = process.env.TELEGRAM_CHAT_ID;
 const BOT_WEEKLY_REMINDER = (typeof process.env.BOT_WEEKLY_REMINDER === "string" && process.env.BOT_WEEKLY_REMINDER.toLowerCase() === "yes");
+let events = [];
 
-console.log("Start loop...")
-loop();
-
-
-
-bot.on('message', async (msg) => {
-	const text = msg.text;
-	
-	switch (text) {
-		case "/id":
-			bot.sendMessage(msg.chat.id, msg.chat.id);
-			break;
-		default:
-			break;
-	}
-});
 
 function UpdateFromGoogleCalendar() {
-	console.log(new Date()+":");
-	console.time("-> Update from Google Calendar")
+	sendLog("Start update from google calendar", TypeLogs.INFO);
 	return new Promise((resolve, reject) => {	
 		const promise = GoogleCalendarApi.getEvents()
 		promise.then((data) => {
 			resolve(data);
-			console.timeEnd("-> Update from Google Calendar");
-			console.log(`-> Events find: ${data.length}`)
-			console.log(data)
 		})
 	})
 }
 
 
-async function checkEventForTelegram(eventList) {
-	console.time("-> Check if there is an event to send")
-	const now = new Date();
-	now.setSeconds(0);
-	now.setMilliseconds(0);
-	const rangeStart = now.getTime();
-	
-	now.setSeconds(59);
-	now.setMilliseconds(999);
-	const rangeStop = now.getTime();
-	
-	for(let i=0;i<eventList.length;i++) { // not used map for send message in correct order
-		const event = eventList[i];
+async function checkEventForTelegram() {
+	const rangeStart = new Date();
+	rangeStart.setSeconds(0);
+	rangeStart.setMilliseconds(0);
 
-		const now = new Date();
-		const allertTime = new Date(event.allertDate);
+	for(let i=0;i<events.length;i++) {
+		const event = events[i];
 
-		if(allertTime.getTime()>=rangeStart && allertTime.getTime()<=rangeStop) {
-			await sendEventReminderMessageTelegram(event);
+		if(event.insideRangeNotificationTime(rangeStart, 1)) {
+			await TelegramBot.sendEventTelegram(CHAT_ID_FOR_REMINDERS, event);
 		}
 	}
-	console.timeEnd("-> Check if there is an event to send")
 }
 
-function sendEventReminderMessageTelegram(event) {
-	return new Promise(async (resolve, reject) => {
-		let text = "";
-		text+="📢  "+titleToString(event);
-		text+="🕐  "+dateTimeToString(event);
-		text+="📍  "+locationToString(event)
-		text+=descriptionToString(event);
-
-		const opts = {parse_mode : "HTML","disable_web_page_preview": 1}
-		bot.sendMessage(chat_id_reminders, text, opts)
-		.then((data) => {
-			resolve(data);
-		})
-	})
-}
-
-function SendReminderForAllWeek(eventList) {
-	const now = new Date();
+function sendendReminderForAllWeek() {
 	const week_start_date = new Date();
-	const week_end_date = new Date();
-
-	week_start_date.setDate(now.getDate() + 1);
-	week_end_date.setDate(now.getDate() + 8);
+	week_start_date.setDate(new Date().getDate() + 1);
 	resetDayAtStart(week_start_date);
-	resetDayAtStart(week_end_date);
 
-	let eventOfTheWeek = [];
-	
-	eventList.map((event, i) => {
-		const start_date = new Date(event.start);
-		
-		if(week_start_date.getTime()<=start_date.getTime() && start_date.getTime()<week_end_date.getTime()) {
-			eventOfTheWeek.push(event);
+	let eventsInNextWeek = [];
+
+	events.map((event, i) => {
+		if(event.insideRangeStartTime(week_start_date, 10080)) { // 7*24*60
+			eventsInNextWeek.push(event);
 		}
 	});
-	
-	if(eventOfTheWeek.length != 0) {
-		const opts = {parse_mode : "HTML","disable_web_page_preview": 1}
-		bot.sendMessage(chat_id_reminders, textAllWeekReminder(eventOfTheWeek), opts)		
+
+	if(eventsInNextWeek.length !== 0) {
+		TelegramBot.sendGroupEventsTelegram(CHAT_ID_FOR_REMINDERS, eventsInNextWeek);
 	}
-}
-
-function textAllWeekReminder(eventOfTheWeek) {
-	let toReturn = "📆  <b>EVENTS THIS WEEK</b>\n\n➖➖➖➖➖➖➖➖➖➖\n"
-	
-	eventOfTheWeek.forEach(event => {
-		toReturn+="📢  "+titleToString(event);
-		toReturn+="🕐  "+dateTimeToString(event);
-		toReturn+="📍  "+locationToString(event);
-		toReturn+=descriptionToString(event);
-		toReturn+="➖➖➖➖➖➖➖➖➖➖\n";
-	});
-
-	return toReturn;
 }
 
 
@@ -135,93 +71,8 @@ function resetDayAtStart(date) {
 	date.setMilliseconds(0)
 }
 
-function titleToString(event) {
-	return `<b>${event.summary.toUpperCase()}</b>\n`
-}
-
-function dateTimeToString(event) {
-	let different_date = false;
-	const start_date_time = new Date(event.start);
-	const end_date_time = new Date(event.end);
-
-	// Date
-	if(!(start_date_time.getDate() == end_date_time.getDate() &&
-		start_date_time.getMonth() == end_date_time.getMonth() &&
-		start_date_time.getFullYear() == end_date_time.getFullYear()
-	)) {
-		different_date = true;
-	}
-
-	const start_date_str = (start_date_time.getDate()<10?'0':'') + start_date_time.getDate()+"/"+
-		(start_date_time.getMonth()+1<10?'0':'') + (start_date_time.getMonth()+1);
-	
-	let end_date_str = null;
-
-	if(different_date) {
-		end_date_str = (end_date_time.getDate()<10?'0':'') + end_date_time.getDate()+"/"+
-			(end_date_time.getMonth()+1<10?'0':'') + (end_date_time.getMonth()+1);
-	}else{
-		end_date_str = start_date_str;
-	}
-
-
-	// Time
-	const start_time_str = (start_date_time.getHours()<10?'0':'') + start_date_time.getHours()+":"+
-		(start_date_time.getMinutes()<10?'0':'') + start_date_time.getMinutes();
-	const end_time_str = (end_date_time.getHours()<10?'0':'') + end_date_time.getHours()+":"+
-		(end_date_time.getMinutes()<10?'0':'') + end_date_time.getMinutes();
-
-	// To string
-	let toReturn = "";
-	
-	if(different_date) {
-		toReturn+= `<i>${start_date_str} ${start_time_str} - ${end_date_str} ${end_time_str}</i>`;
-	} else {
-		toReturn+= `<i>${start_date_str}  ${start_time_str} - ${end_time_str}</i>`;
-	}
-	toReturn+=`\n`;
-
-	return toReturn;
-}
-
-function locationToString(event) {
-	if(event.location === undefined) {
-		return "-\n";
-	} 
-
-	if(event.location === "") {
-		return "-\n";
-	}
-
-	let toReturn = ""
-	const location_split = event.location.split(", ");
-	if(location_split.length>1) {
-		toReturn = `<a href='https://www.google.com/maps?q=${event.location}'>${location_split[0]}</a>\n`;
-	} else {
-		toReturn = location_split[0];
-	}
-
-	return toReturn
-}
-
-function descriptionToString(event) {
-	if(event.description === undefined) {
-		return "";
-	}
-
-	if(event.description === "") {
-		return "";
-	} 
-
-	return `\n${event.description}\n`;
-}
-
-
-async function init() {
-	checkEnvVariable()
-}
-
 function checkEnvVariable() {
+	sendLog("Check enviroment variable", TypeLogs.INFO);
 	let errors_list = []
 	let warnings_list = []
 
@@ -257,15 +108,15 @@ function checkEnvVariable() {
 		errors_list.push("BOT_WEEKLY_REMINDER: unset")
 	}
 	if(process.env.BOT_WEEKLY_REMINDER !== "yes" && process.env.BOT_WEEKLY_REMINDER !== "no") {
-		errors_list.push("BOT_REMINDER_TIME: not boolean")
+		errors_list.push("BOT_REMINDER_TIME: not yes or no")
 	}
 
 
 	errors_list.forEach(item => {
-		console.log(`Error: ${item}`)
+		sendLog(item, TypeLogs.ERROR)
 	})
 	warnings_list.forEach(item => {
-		console.log(`Warning: ${item}`)
+		sendLog(item, TypeLogs.WARNING)
 	})
 
 	if(errors_list.length != 0) {
@@ -274,12 +125,13 @@ function checkEnvVariable() {
 }
 
 async function loop() {
-	let lastMinutes = new Date().getMinutes() - 1
-	let eventList = []
+	sendLog("Start loop", TypeLogs.INFO)
+
+	let lastMinutes = new Date().getMinutes()
 
 	UpdateFromGoogleCalendar()
 	.then((data) => {
-		eventList = data;
+		events = data;
 	})
 
 	setInterval(() => {
@@ -287,26 +139,27 @@ async function loop() {
 
 		if(now.getMinutes() != lastMinutes) {
 
-			// Download google calendar
-			if(now.getMinutes() % 30 === 0 && now.getSeconds() === 0) {
+			// Get calendar
+			if(now.getMinutes() % 15 === 0) {
 				UpdateFromGoogleCalendar()
 				.then((data) => {
-					eventList = data;
+					events = data;
 				})
 			}
 
 			// See if is sunday at 14:00
 			if(BOT_WEEKLY_REMINDER) {
 				if(now.getDay() === 0 && now.getHours() === 14 && now.getMinutes() === 0) {
-					SendReminderForAllWeek(eventList)
+				 	sendendReminderForAllWeek()
 				}
 			}
 
 			// See if there is message to send
-			checkEventForTelegram(eventList)
+			checkEventForTelegram()
 
 			lastMinutes = now.getMinutes()
 		}
 	}, 1000)
 }
 
+loop();
