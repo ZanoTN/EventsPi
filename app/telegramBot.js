@@ -10,7 +10,7 @@ bot.on('message', async (msg) => {
 	
 	switch (text) {
 		case "/id":
-			sendLog(`Tselegram "/id" command in chat ${msg.chat.id}`);
+			sendLog(`Tselegram "/id" command in chat ${msg.chat.id}`, TypeLogs.INFO);
 			bot.sendMessage(msg.chat.id, msg.chat.id);
 			break;
 		default:
