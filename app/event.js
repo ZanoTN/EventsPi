@@ -220,7 +220,7 @@ module.exports = class Event{
 	 * @param {number} minutes_delta 
 	 */
 	insideRangeNotificationTime(range_start, minutes_delta) {
-		return (this.notification_time.getTime() >= range_start.getTime() && this.start_time.getTime() < (range_start.getTime() + minutes_delta*60*1000))
+		return (this.notification_time.getTime() >= range_start.getTime() && this.notification_time.getTime() < (range_start.getTime() + minutes_delta*60*1000))
 	}
 
 	/**
