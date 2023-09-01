@@ -34,3 +34,11 @@ jobs:
           provenance: false
           push: true
           tags: ghcr.io/zanotn/events-pi:latest
+      - name: Archive Test Results
+        run: |
+          curl \
+            -u ${{ secrets.NTFY_CRED }} \
+            -H "EventsPi build" \
+            -H "Content-Type: text/plain" \
+            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status}}' \
+            ${{ secrets.NTFY_URL }}
