@@ -1,11 +1,9 @@
 # EventsPi
 
+> Actual the project is in beta version, when go out of this stage the package will be upload in Docker Hub and will be add a version list.
+
 ![GitHub](https://img.shields.io/github/license/ZanoTN/EventsPi?style=flat-square&color=5ba839)
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/ZanoTN/EventsPi/publish-ghcr.yaml?style=flat-square&color=5ba839)
-
-
-
-
 
 EventsPi is a script that allows you to send google calendar event reminders on a telegram chat.
 
@@ -62,7 +60,6 @@ services:
 #### Update (manual)
 1. Update local image: ```docker-compose pull```
 2. Reload container: ```docker-compose up -d```
-
 
 ### PM2
 Official site: [pm2.keymetrics.io](https://pm2.keymetrics.io/)
