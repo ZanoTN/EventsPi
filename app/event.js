@@ -107,9 +107,7 @@ module.exports = class Event{
 			"📢 "+ this.#toStringTitle() +
 			"🕐 "+ this.#toStringTime() +
 			"📍 "+ this.#toStringLocation() +
-			"---\n" +
-			this.#toStringDescription() +
-			"---\n"
+			this.#toStringDescription()
 		)
 	}
 
@@ -211,7 +209,7 @@ module.exports = class Event{
 			return "";
 		} 
 	
-		return `${this.description}\n`;
+		return `---\n${this.description}\n---\n`;
 	}
 
 	/**
