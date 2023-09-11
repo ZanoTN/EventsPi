@@ -40,5 +40,5 @@ jobs:
             -u ${{ secrets.NTFY_CRED }} \
             -H "EventsPi build" \
             -H "Content-Type: text/plain" \
-            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ job.status}}' \
+            -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus build: ${{ job.status}}' \
             ${{ secrets.NTFY_URL }}
