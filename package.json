@@ -18,7 +18,8 @@
   "homepage": "https://github.com/ZanoTN/EventsPi#readme",
   "dependencies": {
     "googleapis": "^124.0.0",
-    "node-telegram-bot-api": "^0.61.0"
+    "node-telegram-bot-api": "^0.61.0",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "dotenv": "^16.3.1"

@@ -31,6 +31,7 @@ module.exports = class Event{
 			description = description.replaceAll("<span>", "");
 			description = description.replaceAll("</span>", "");
 			description = description.replaceAll("<br>", "\n");
+			description = description.trim()
 		}
 
 		return description;
