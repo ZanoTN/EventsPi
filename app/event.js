@@ -105,9 +105,11 @@ module.exports = class Event{
 
 	telegramFormat() {
 		return(
-			"📢 "+ this.#toStringTitle() +
-			"🕐 "+ this.#toStringTime() +
-			"📍 "+ this.#toStringLocation() +
+			"📅 "+ this.#toStringTitle() +
+			'\n' +
+			"• <b>Time:</b> "+ this.#toStringTime() +
+			"• <b>Location:</b> "+ this.#toStringLocation() +
+			'\n' +
 			this.#toStringDescription()
 		)
 	}
@@ -122,14 +124,6 @@ module.exports = class Event{
 		events.map((event) => {
 			textToReturn += event.telegramFormat() + '\n';
 		})
-	}
-
-	telegramFormatNoDescription() {
-		return(
-			"📢 "+ this.#toStringTitle() +
-			"🕐 "+ this.#toStringTime() +
-			"📍 "+ this.#toStringLocation()
-		)
 	}
 
 	telegramFormatNoDescriptionButWithLink() {
@@ -181,7 +175,7 @@ module.exports = class Event{
 		if(different_date) {
 			toReturn+= `<i>${start_date_str} ${start_time_str} - ${end_date_str} ${end_time_str}</i>`;
 		} else {
-			toReturn+= `<i>${start_date_str}  ${start_time_str} - ${end_time_str}</i>`;
+			toReturn+= `${start_date_str}  ${start_time_str} - ${end_time_str}`;
 		}
 		toReturn+=`\n`;
 	
@@ -197,12 +191,12 @@ module.exports = class Event{
 		let toReturn = ""
 		const location_split = this.location.split(", ");
 		if(location_split.length>1) {
-			toReturn = `<a href='https://www.google.com/maps?q=${this.location}'>${location_split[0]}</a>\n`;
+			toReturn = `<a href='https://www.google.com/maps?q=${this.location}'>${location_split[0]}</a>`;
 		} else {
 			toReturn = location_split[0];
 		}
 	
-		return toReturn
+		return toReturn+"\n"
 	}
 
 	#toStringDescription() {
@@ -210,7 +204,7 @@ module.exports = class Event{
 			return "";
 		} 
 	
-		return `---\n${this.description}\n---\n`;
+		return `${this.description}\n`;
 	}
 
 	/**
