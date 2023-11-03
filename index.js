@@ -19,10 +19,6 @@ const CHAT_ID_FOR_REMINDERS = process.env.TELEGRAM_CHAT_ID;
 const BOT_WEEKLY_REMINDER = (typeof process.env.BOT_WEEKLY_REMINDER === "string" && process.env.BOT_WEEKLY_REMINDER.toLowerCase() === "yes");
 let events = [];
 
-
-// Dev
-const db = require("./app/db");
-
 function UpdateFromGoogleCalendar() {
 	sendLog("Start update from google calendar", TypeLogs.INFO);
 	return new Promise((resolve, reject) => {	
@@ -135,11 +131,6 @@ async function loop() {
 	UpdateFromGoogleCalendar()
 	.then((data) => {
 		events = data;
-		
-		// DEV
-		events.forEach(event => {
-			TelegramBot.sendEventTelegram(CHAT_ID_FOR_REMINDERS, event);
-		})
 	})
 
 	setInterval(() => {
