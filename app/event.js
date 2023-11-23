@@ -106,7 +106,6 @@ module.exports = class Event{
 	telegramFormat() {
 		return(
 			"📅 "+ this.#toStringTitle() +
-			'\n' +
 			"• <b>Time:</b> "+ this.#toStringTime() +
 			"• <b>Location:</b> "+ this.#toStringLocation() +
 			'\n' +

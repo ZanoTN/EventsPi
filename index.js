@@ -11,6 +11,7 @@ if(process.env.NODE_ENV !== "production") {
 }
 checkEnvVariable()
 
+const db = require('./app/db');
 const GoogleCalendarApi = require('./app/googleCalendarDownload');
 const Event = require("./app/event");
 const TelegramBot = require("./app/telegramBot");

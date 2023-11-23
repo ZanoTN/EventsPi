@@ -9,12 +9,6 @@ EventsPi is a script that allows you to send google calendar event reminders on 
 
 ## ToDo
 - [ ] Add multiple calendar and telegram chat
-- [ ] Add different notification time:
-  - [X] 1 hours before
-  - [X] 6 hours before
-  - [X] At 18:00 of the day before
-  - [X] At 08:00 or 18:00 of the day before
-  - [ ] Google calendar setting (if possible)
 
 ## Installation
 ### Docker (compose)
@@ -23,10 +17,13 @@ EventsPi is a script that allows you to send google calendar event reminders on 
 1. Create file or copy from repository: docker-compose.yml
 ```yaml
 version: '3'
+
 services:
   bot:
     image: ghcr.io/zanotn/events-pi:latest
     restart: unless-stopped
+    volumes:
+      - db-data:/app/db-data
     environment:
       # Telegram configs:
       # See for more info: https://core.telegram.org/bots#how-do-i-create-a-bot
@@ -54,6 +51,9 @@ services:
       BOT_WEEKLY_REMINDER: yes
       # Set local time zone, See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
       TZ:
+
+volumes:
+  db-data:
 ```
 2. Run in same directory of docker-compose.yml: ```docker compose up -d``` or ```docker-compose up -d```
 
