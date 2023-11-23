@@ -11,6 +11,7 @@ if(process.env.NODE_ENV !== "production") {
 }
 checkEnvVariable()
 
+const db = require('./app/db');
 const GoogleCalendarApi = require('./app/googleCalendarDownload');
 const Event = require("./app/event");
 const TelegramBot = require("./app/telegramBot");
@@ -18,7 +19,6 @@ const TelegramBot = require("./app/telegramBot");
 const CHAT_ID_FOR_REMINDERS = process.env.TELEGRAM_CHAT_ID;
 const BOT_WEEKLY_REMINDER = (typeof process.env.BOT_WEEKLY_REMINDER === "string" && process.env.BOT_WEEKLY_REMINDER.toLowerCase() === "yes");
 let events = [];
-
 
 function UpdateFromGoogleCalendar() {
 	sendLog("Start update from google calendar", TypeLogs.INFO);

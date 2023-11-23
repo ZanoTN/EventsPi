@@ -5,12 +5,16 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {polling: true});
 
+bot.on('polling_error', (error) => {
+  console.log(error);  // => 'EFATAL'
+});
+
 bot.on('message', async (msg) => {
 	const text = msg.text;
 	
 	switch (text) {
 		case "/id":
-			sendLog(`Tselegram "/id" command in chat ${msg.chat.id}`, TypeLogs.INFO);
+			sendLog(`Telegram "/id" command in chat ${msg.chat.id}`, TypeLogs.INFO);
 			bot.sendMessage(msg.chat.id, msg.chat.id);
 			break;
 		default:
@@ -28,6 +32,7 @@ bot.on('message', async (msg) => {
 async function sendEventTelegram(chat_id, event) {
 	return new Promise(async (resolve, reject) => {
 		const opts = {parse_mode : "HTML","disable_web_page_preview": 1}
+
 		bot.sendMessage(chat_id, event.telegramFormat(), opts)
 		.then((data) => {
 			sendLog(`Sended event reminder (chat id: ${chat_id}, event title: ${event.title})`, TypeLogs.INFO)
