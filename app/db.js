@@ -1,7 +1,7 @@
 "use strict"
 
 const sqlite3 = require("sqlite3").verbose();
-const filepath = "./db_data/storage.db";
+const filepath = "./database/storage.db";
 const version = "0.0.1";
 
 const db = createDbConnection();
