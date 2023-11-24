@@ -23,7 +23,7 @@ services:
     image: ghcr.io/zanotn/events-pi:latest
     restart: unless-stopped
     volumes:
-      - db-data:/app/db-data
+      - db-data:/home/node/app/database
     environment:
       # Telegram configs:
       # See for more info: https://core.telegram.org/bots#how-do-i-create-a-bot
